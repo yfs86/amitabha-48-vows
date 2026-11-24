@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>無量壽經・四十八願行｜完整四十八願互動體驗</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ==================== 1. 首頁 Title Screen ==================== -->
+  <section id="screen-title" class="screen-title">
+    <div class="cosmic-backdrop"></div>
+
+    <main class="title-card">
+      <div class="mandala-emblem" aria-hidden="true">
+        <svg viewBox="0 0 180 180" width="136" height="136">
+          <circle cx="90" cy="90" r="82" fill="none" stroke="rgba(240,200,105,0.28)" stroke-width="1" stroke-dasharray="4 4" />
+          <circle cx="90" cy="90" r="64" fill="none" stroke="rgba(98,210,196,0.38)" stroke-width="1.2" />
+          <g stroke="rgba(240,200,105,0.72)" fill="rgba(240,200,105,0.08)" stroke-width="1.2">
+            <path d="M90 22 Q108 56 90 90 Q72 56 90 22 Z" />
+            <path d="M90 158 Q108 124 90 90 Q72 124 90 158 Z" />
+            <path d="M22 90 Q56 72 90 90 Q56 108 22 90 Z" />
+            <path d="M158 90 Q124 72 90 90 Q124 108 158 90 Z" />
+            <path d="M42 42 Q74 58 90 90 Q58 74 42 42 Z" />
+            <path d="M138 138 Q106 122 90 90 Q122 106 138 138 Z" />
+            <path d="M138 42 Q122 74 90 90 Q106 58 138 42 Z" />
+            <path d="M42 138 Q58 106 90 90 Q74 122 42 138 Z" />
+          </g>
+          <circle cx="90" cy="90" r="9" fill="#f0c869" opacity="0.9" />
+        </svg>
+      </div>
+
+      <p class="title-eyebrow">佛說無量壽經 ・ 康僧鎧譯本</p>
+      <h1 class="title-main">四十八願行</h1>
+      <p class="title-sub">五劫思惟・點亮四十八盞極樂願燈（完整版）</p>
+      <p class="title-desc">
+        走進無邊願海，循著願光尋訪四十八座不同光色與樣式的願燈——<br />
+        從離苦、六通、十念接引，到萬物嚴淨與不退法忍，逐一築起清淨的極樂莊嚴。
+      </p>
+
+      <div class="title-actions">
+        <button id="btn-start" type="button" class="btn-primary">開始發願</button>
+        <div class="title-sub-actions">
+          <button id="btn-open-cards-title" type="button" class="btn-pill">
+            願海法卡 <span id="title-cards-badge" class="badge-count">0 / 48</span>
+          </button>
+          <button id="btn-open-starmap-title" type="button" class="btn-pill">四十八願星圖</button>
+          <button id="btn-open-settings-title" type="button" class="btn-pill">音效與設定</button>
+        </div>
+      </div>
+    </main>
+  </section>
+
+  <!-- ==================== 2. 極樂願海地圖 Overworld ==================== -->
+  <section id="screen-map" class="screen-map hidden">
+    <canvas id="map-canvas"></canvas>
+
+    <!-- 左上角導引 HUD -->
+    <div class="hud-top-left glass-panel">
+      <div class="hud-row">
+        <span id="hud-section" class="hud-tag">離苦淨土</span>
+        <span id="hud-pureland-status" class="hud-pureland">極樂莊嚴度：0 / 48</span>
+      </div>
+      <div id="hud-target-title" class="hud-target">尋訪 第一願 · 國無惡道願</div>
+      <div id="hud-compass" class="hud-compass">願光指引 東北方 · 約 6 步</div>
+    </div>
+
+    <!-- 右上角功能列 -->
+    <div class="hud-top-right">
+      <button id="btn-back-title" type="button" class="btn-hud">回首頁</button>
+      <button id="btn-open-starmap-map" type="button" class="btn-hud">星圖 (48)</button>
+      <button id="btn-open-cards-map" type="button" class="btn-hud">法卡</button>
+      <button id="btn-open-settings-map" type="button" class="btn-hud">音效</button>
+    </div>
+
+    <!-- 右側 6 分區垂直進度軌 -->
+    <aside id="map-progress-track" class="progress-track" aria-label="六大分區進度"></aside>
+
+    <!-- 底部互動按鈕與提示 -->
+    <div class="hud-bottom">
+      <button id="btn-interact-vow" type="button" class="btn-interact hidden">參悟 第一願 · 國無惡道願</button>
+      <p id="map-hint-text" class="map-hint">
+        點擊畫面任意處直接走到目的地（或用方向鍵 / WASD 移動），靠近願燈按空白鍵或點擊按鈕參悟
+      </p>
+    </div>
+  </section>
+
+  <!-- ==================== 3. 三階段闖關視窗 Encounter Modal ==================== -->
+  <div id="modal-encounter" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card encounter-card">
+      <div class="modal-header">
+        <div>
+          <div id="enc-vow-badge" class="enc-badge">第一願 · 國無惡道願</div>
+          <div id="enc-lotus-name" class="enc-subtitle">初明離苦蓮台</div>
+        </div>
+        <button id="btn-close-encounter" type="button" class="btn-close" aria-label="返回地圖">✕</button>
+      </div>
+
+      <div class="phase-steps">
+        <div id="enc-phase-ask" class="phase-pill active">一 · 思惟</div>
+        <div id="enc-phase-still" class="phase-pill">二 · 發願</div>
+        <div id="enc-phase-realize" class="phase-pill">三 · 莊嚴</div>
+      </div>
+
+      <!-- 階段一：思惟 -->
+      <div id="enc-stage-ask" class="stage-panel">
+        <div id="ask-dialogue-box" class="dialogue-box" tabindex="0">
+          <p id="ask-dialogue-text" class="dialogue-text"></p>
+          <span id="ask-dialogue-hint" class="dialogue-hint">點擊繼續 ›</span>
+        </div>
+
+        <div id="ask-question-area" class="question-area hidden">
+          <h3 id="ask-question-prompt" class="question-prompt"></h3>
+          <div id="ask-choices-list" class="choices-list"></div>
+          <div id="ask-feedback-box" class="feedback-box hidden"></div>
+          <div class="stage-footer">
+            <button id="btn-to-still" type="button" class="btn-primary hidden">進入發願定心 ›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 階段二：發願（呼吸光環定心） -->
+      <div id="enc-stage-still" class="stage-panel hidden">
+        <h3 id="still-title" class="still-title">息苦發願</h3>
+        <p id="still-guide" class="still-guide"></p>
+        <div id="still-mantra" class="still-mantra"></div>
+
+        <div class="breath-wrapper">
+          <svg id="breath-ring-svg" class="breath-svg" viewBox="0 0 220 220" width="220" height="220">
+            <g id="breath-petals-group"></g>
+            <circle cx="110" cy="110" r="76" fill="none" stroke="rgba(148,163,184,0.22)" stroke-width="8" />
+            <circle id="breath-progress-circle" cx="110" cy="110" r="76" fill="none" stroke="#62d2c4" stroke-width="8" stroke-linecap="round" transform="rotate(-90 110 110)" />
+          </svg>
+          <div class="breath-center">
+            <div id="breath-center-text" class="breath-center-main">長按起息</div>
+            <div id="breath-phase-sub" class="breath-center-sub">完成 3 輪專注呼吸</div>
+          </div>
+        </div>
+
+        <div id="breath-cycles-dots" class="cycles-dots"></div>
+        <button id="breath-hold-btn" type="button" class="btn-hold">長按此處（或空白鍵）吸氣，提示後放開呼氣</button>
+        <p id="breath-status-msg" class="breath-status"></p>
+      </div>
+
+      <!-- 階段三：莊嚴（法卡頒發） -->
+      <div id="enc-stage-realize" class="stage-panel hidden">
+        <div class="realize-card">
+          <div id="realize-card-tag" class="card-tag">淨土基石</div>
+          <h3 id="realize-vow-title" class="realize-title">第一願｜國無惡道願</h3>
+
+          <div class="sutra-block">
+            <div class="block-label">康僧鎧原經文</div>
+            <p id="realize-sutra" class="sutra-text"></p>
+          </div>
+
+          <div class="meaning-block">
+            <div class="block-label">白話釋義</div>
+            <p id="realize-vernacular"></p>
+          </div>
+
+          <div class="meaning-block">
+            <div class="block-label">現代修心啟發</div>
+            <p id="realize-reflection"></p>
+          </div>
+
+          <div id="realize-pureland-reward" class="pureland-banner"></div>
+        </div>
+
+        <div class="realize-actions">
+          <button id="btn-realize-map" type="button" class="btn-pill">返回極樂淨土</button>
+          <button id="btn-realize-next" type="button" class="btn-primary">繼續前往下一願 ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 4. 四十八願星圖 Star Map ==================== -->
+  <div id="modal-starmap" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card wide-card">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">四十八願願海星圖</h2>
+          <p id="starmap-summary" class="modal-sub"></p>
+        </div>
+        <button id="btn-close-starmap" type="button" class="btn-close" aria-label="關閉星圖">✕</button>
+      </div>
+      <div class="starmap-legend">
+        <span><i class="dot done"></i> 已點亮</span>
+        <span><i class="dot next"></i> 建議下一願</span>
+        <span><i class="dot demo"></i> 點擊任一願可前往該蓮燈</span>
+      </div>
+      <div id="starmap-sections-container" class="starmap-sections"></div>
+    </div>
+  </div>
+
+  <!-- ==================== 5. 願海法卡圖鑑 Dharma Cards ==================== -->
+  <div id="modal-cards" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card wide-card">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">願海法卡圖鑑</h2>
+          <p id="cards-summary" class="modal-sub"></p>
+        </div>
+        <button id="btn-close-cards" type="button" class="btn-close" aria-label="關閉圖鑑">✕</button>
+      </div>
+
+      <div id="cards-filter-tabs" class="filter-tabs"></div>
+      <div id="cards-grid-container" class="cards-grid"></div>
+
+      <div id="card-detail-panel" class="card-detail hidden">
+        <div class="detail-top">
+          <div>
+            <span id="detail-tag" class="card-tag"></span>
+            <h3 id="detail-title"></h3>
+            <p id="detail-section" class="detail-sec"></p>
+          </div>
+          <button id="btn-close-card-detail" type="button" class="btn-pill">收合</button>
+        </div>
+        <div class="sutra-block">
+          <div class="block-label">原經文</div>
+          <p id="detail-sutra" class="sutra-text"></p>
+        </div>
+        <div class="meaning-block">
+          <div class="block-label">白話釋義</div>
+          <p id="detail-vernacular"></p>
+        </div>
+        <div class="meaning-block">
+          <div class="block-label">現代修心啟發</div>
+          <p id="detail-reflection"></p>
+        </div>
+        <p id="detail-date" class="detail-date"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 6. 音效與設定 Settings ==================== -->
+  <div id="modal-settings" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card small-card">
+      <div class="modal-header">
+        <h2 class="modal-title">音效與設定</h2>
+        <button id="btn-close-settings" type="button" class="btn-close" aria-label="關閉設定">✕</button>
+      </div>
+
+      <div class="settings-body">
+        <label class="setting-row">
+          <span>靜心背景音與頌缽</span>
+          <input id="toggle-sound" type="checkbox" checked />
+        </label>
+
+        <div class="setting-row col">
+          <div class="setting-vol-head">
+            <span>音量大小</span>
+            <span id="volume-value-label">50%</span>
+          </div>
+          <input id="slider-volume" type="range" min="0" max="100" value="50" />
+        </div>
+
+        <div class="setting-actions">
+          <button id="btn-test-bowl" type="button" class="btn-pill">試聽頌缽共鳴</button>
+          <button id="btn-reset-progress" type="button" class="btn-danger">重置修行進度</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 傳統依序載入，確保本機雙擊 index.html (file://) 與 GitHub Pages 皆可直接執行 -->
+  <script src="js/vows-part1.js"></script>
+  <script src="js/vows-part2.js"></script>
+  <script src="js/vows-part3.js"></script>
+  <script src="js/vows-data.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

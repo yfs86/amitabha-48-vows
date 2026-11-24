@@ -1,0 +1,1035 @@
+:root {
+  --bg-deep: #070b18;
+  --bg-mid: #0e1730;
+  --panel-bg: rgba(13, 21, 44, 0.88);
+  --panel-border: rgba(240, 200, 105, 0.24);
+  --gold: #f0c869;
+  --gold-soft: #fde68a;
+  --teal: #62d2c4;
+  --text-main: #eef2ff;
+  --text-muted: #94a3b8;
+  --font-serif: "Noto Serif TC", "Songti TC", "PMingLiU", "MingLiU", serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-serif);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ==================== 按鈕與通用元件 ==================== */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  color: inherit;
+  background: transparent;
+  transition: transform 0.16s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #d4a64a 0%, #f0c869 100%);
+  color: #131829;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 13px 34px;
+  border-radius: 999px;
+  box-shadow: 0 0 24px rgba(240, 200, 105, 0.32);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 32px rgba(240, 200, 105, 0.55);
+}
+
+.btn-pill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text-main);
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+}
+
+.btn-pill:hover {
+  background: rgba(240, 200, 105, 0.14);
+  border-color: rgba(240, 200, 105, 0.5);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.btn-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ==================== 1. 首頁 ==================== */
+.screen-title {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.cosmic-backdrop {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 25%, rgba(98, 210, 196, 0.12), transparent 55%),
+    radial-gradient(circle at 50% 75%, rgba(240, 200, 105, 0.1), transparent 55%),
+    linear-gradient(180deg, #060914 0%, #0d1630 100%);
+  z-index: 0;
+}
+
+.title-card {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  width: 100%;
+  text-align: center;
+  padding: 36px 28px;
+  border-radius: 24px;
+  background: rgba(12, 19, 40, 0.72);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.mandala-emblem {
+  margin-bottom: 12px;
+  animation: slowFloat 6s ease-in-out infinite;
+}
+
+@keyframes slowFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.title-eyebrow {
+  font-size: 0.88rem;
+  letter-spacing: 0.18em;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
+
+.title-main {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--gold-soft);
+  margin-bottom: 6px;
+}
+
+.title-sub {
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.title-desc {
+  font-size: 0.96rem;
+  line-height: 1.8;
+  color: #cbd5e1;
+  margin-bottom: 26px;
+}
+
+.title-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.title-sub-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.badge-count {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(240, 200, 105, 0.22);
+  color: var(--gold-soft);
+  font-size: 0.8rem;
+}
+
+/* ==================== 2. 地圖 HUD ==================== */
+.screen-map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#map-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.glass-panel {
+  background: rgba(10, 16, 36, 0.78);
+  border: 1px solid rgba(240, 200, 105, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+.hud-top-left {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  max-width: min(380px, calc(100vw - 28px));
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hud-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.hud-tag {
+  font-size: 0.76rem;
+  color: #0b1325;
+  background: var(--teal);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.hud-pureland {
+  font-size: 0.8rem;
+  color: var(--gold);
+}
+
+.hud-target {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold-soft);
+  margin-bottom: 3px;
+}
+
+.hud-compass {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.hud-top-right {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.btn-hud {
+  background: rgba(10, 16, 36, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  backdrop-filter: blur(8px);
+}
+
+.btn-hud:hover {
+  border-color: var(--gold);
+  color: var(--gold-soft);
+}
+
+.progress-track {
+  position: fixed;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9;
+  padding: 10px 6px;
+  border-radius: 999px;
+  background: rgba(10, 16, 36, 0.58);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.progress-node {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.progress-node.next {
+  border-color: var(--teal);
+  color: var(--teal);
+  box-shadow: 0 0 12px rgba(98, 210, 196, 0.45);
+}
+
+.progress-node.done {
+  background: rgba(240, 200, 105, 0.25);
+  border-color: var(--gold);
+  color: var(--gold-soft);
+}
+
+.hud-bottom {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: min(760px, calc(100vw - 28px));
+  z-index: 10;
+  pointer-events: none;
+}
+
+.btn-interact {
+  pointer-events: auto;
+  background: linear-gradient(135deg, #2bb5a3 0%, #62d2c4 100%);
+  color: #06131a;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 12px 28px;
+  border-radius: 999px;
+  box-shadow: 0 0 28px rgba(98, 210, 196, 0.55);
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(98, 210, 196, 0.45); }
+  50% { box-shadow: 0 0 34px rgba(98, 210, 196, 0.85); }
+}
+
+.map-hint {
+  font-size: 0.78rem;
+  color: rgba(203, 213, 225, 0.85);
+  background: rgba(7, 11, 24, 0.68);
+  padding: 5px 14px;
+  border-radius: 999px;
+  text-align: center;
+}
+
+/* ==================== 3. 共用 Modal ==================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 16, 0.78);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 30;
+}
+
+.modal-card {
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
+}
+
+.encounter-card { max-width: 680px; }
+.wide-card { max-width: 920px; }
+.small-card { max-width: 440px; }
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  font-size: 1.35rem;
+  color: var(--gold-soft);
+}
+
+.modal-sub {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.enc-badge {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gold-soft);
+}
+
+.enc-subtitle {
+  font-size: 0.86rem;
+  color: var(--teal);
+  margin-top: 2px;
+}
+
+/* 三階段指示條 */
+.phase-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.phase-pill {
+  text-align: center;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+
+.phase-pill.active {
+  background: rgba(240, 200, 105, 0.14);
+  border-color: rgba(240, 200, 105, 0.45);
+  color: var(--gold-soft);
+  font-weight: 600;
+}
+
+/* 階段一：思惟 */
+.dialogue-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 24px 20px;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.dialogue-text {
+  font-size: 1.05rem;
+  line-height: 1.9;
+  color: #f1f5f9;
+}
+
+.dialogue-hint {
+  align-self: flex-end;
+  font-size: 0.84rem;
+  color: var(--teal);
+  margin-top: 14px;
+}
+
+.question-prompt {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--gold-soft);
+  margin-bottom: 14px;
+}
+
+.choices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choice-btn {
+  text-align: left;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.choice-btn:hover {
+  border-color: rgba(240, 200, 105, 0.5);
+  background: rgba(240, 200, 105, 0.08);
+}
+
+.choice-btn.selected-wrong {
+  border-color: rgba(251, 146, 60, 0.65);
+  background: rgba(251, 146, 60, 0.1);
+}
+
+.choice-btn.selected-right {
+  border-color: rgba(98, 210, 196, 0.8);
+  background: rgba(98, 210, 196, 0.15);
+}
+
+.feedback-box {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+.feedback-box.gentle {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  color: #fde68a;
+}
+
+.feedback-box.correct {
+  background: rgba(98, 210, 196, 0.12);
+  border: 1px solid rgba(98, 210, 196, 0.45);
+  color: #ccfbf1;
+}
+
+.stage-footer {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 階段二：發願 */
+#enc-stage-still {
+  text-align: center;
+}
+
+.still-title {
+  font-size: 1.15rem;
+  color: var(--gold-soft);
+  margin-bottom: 6px;
+}
+
+.still-guide {
+  font-size: 0.92rem;
+  color: #cbd5e1;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.still-mantra {
+  display: inline-block;
+  padding: 5px 16px;
+  border-radius: 999px;
+  background: rgba(240, 200, 105, 0.12);
+  border: 1px solid rgba(240, 200, 105, 0.35);
+  color: var(--gold);
+  font-size: 0.9rem;
+  margin-bottom: 14px;
+}
+
+.breath-wrapper {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 12px;
+  user-select: none;
+  touch-action: none;
+}
+
+.breath-svg {
+  cursor: pointer;
+}
+
+.petal-dot {
+  fill: rgba(148, 163, 184, 0.25);
+  transition: fill 0.25s ease;
+}
+
+.petal-dot.lit {
+  fill: #fde68a;
+  filter: drop-shadow(0 0 4px rgba(240, 200, 105, 0.8));
+}
+
+.breath-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  padding: 20px;
+}
+
+.breath-center-main {
+  font-size: 1.16rem;
+  font-weight: 700;
+  color: var(--gold-soft);
+}
+
+.breath-center-sub {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  margin-top: 4px;
+}
+
+.cycles-dots {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.cycle-lotus {
+  font-size: 1.35rem;
+  opacity: 0.25;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.cycle-lotus.lit {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.btn-hold {
+  background: linear-gradient(135deg, rgba(98, 210, 196, 0.22), rgba(240, 200, 105, 0.22));
+  border: 1px solid rgba(98, 210, 196, 0.6);
+  padding: 13px 26px;
+  border-radius: 999px;
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: #f8fafc;
+  user-select: none;
+  touch-action: none;
+}
+
+.btn-hold:active {
+  background: rgba(98, 210, 196, 0.35);
+}
+
+.breath-status {
+  margin-top: 10px;
+  font-size: 0.86rem;
+  color: var(--teal);
+  min-height: 22px;
+}
+
+/* 階段三：莊嚴法卡 */
+.realize-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(240, 200, 105, 0.35);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.card-tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  color: var(--teal);
+  border: 1px solid rgba(98, 210, 196, 0.4);
+  padding: 2px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.realize-title {
+  font-size: 1.35rem;
+  color: var(--gold-soft);
+  margin-bottom: 14px;
+}
+
+.sutra-block, .meaning-block {
+  margin-bottom: 14px;
+}
+
+.block-label {
+  font-size: 0.8rem;
+  color: var(--gold);
+  margin-bottom: 4px;
+  letter-spacing: 0.08em;
+}
+
+.sutra-text {
+  font-size: 1.03rem;
+  line-height: 1.8;
+  color: #fef3c7;
+  background: rgba(240, 200, 105, 0.07);
+  padding: 10px 14px;
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+}
+
+.meaning-block p {
+  font-size: 0.94rem;
+  line-height: 1.75;
+  color: #e2e8f0;
+}
+
+.pureland-banner {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(98, 210, 196, 0.12);
+  border: 1px solid rgba(98, 210, 196, 0.35);
+  color: #99f6e4;
+  font-size: 0.9rem;
+}
+
+.realize-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+/* ==================== 4. 四十八願星圖 ==================== */
+.starmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.starmap-legend .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.dot.done { background: var(--gold); }
+.dot.next { background: var(--teal); }
+.dot.demo { background: #60a5fa; }
+
+.starmap-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.starmap-section {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.starmap-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.starmap-section-header h4 {
+  color: var(--gold-soft);
+  font-size: 1rem;
+}
+
+.starmap-section-header span {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.starmap-nodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 8px;
+}
+
+.star-node {
+  text-align: left;
+  padding: 10px 11px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.star-node:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.star-node.done {
+  background: rgba(240, 200, 105, 0.13);
+}
+
+.star-node.next {
+  border-color: rgba(98, 210, 196, 0.78);
+  background: rgba(98, 210, 196, 0.12);
+}
+
+.star-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.star-num {
+  font-size: 0.76rem;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.star-color-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.star-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 3px 0;
+  color: #f8fafc;
+}
+
+.star-tag {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ==================== 5. 願海法卡圖鑑 ==================== */
+.filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filter-tab {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #cbd5e1;
+}
+
+.filter-tab.active {
+  background: rgba(240, 200, 105, 0.18);
+  border-color: var(--gold);
+  color: var(--gold-soft);
+  font-weight: 600;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.dharma-card-item {
+  text-align: left;
+  padding: 15px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.dharma-card-item.unlocked {
+  background: linear-gradient(160deg, rgba(240, 200, 105, 0.12), rgba(13, 21, 44, 0.92));
+}
+
+.dharma-card-item.unlocked:hover {
+  transform: translateY(-2px);
+}
+
+.dharma-card-item.locked {
+  opacity: 0.56;
+  cursor: default;
+}
+
+.card-mini-tag {
+  font-size: 0.74rem;
+  color: var(--teal);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-mini-num {
+  font-size: 0.84rem;
+  color: var(--gold);
+}
+
+.card-mini-title {
+  font-size: 1.06rem;
+  font-weight: 700;
+  color: var(--gold-soft);
+  margin: 4px 0 8px;
+}
+
+.card-mini-foot {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.card-detail {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(240, 200, 105, 0.35);
+}
+
+.detail-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.detail-top h3 {
+  font-size: 1.2rem;
+  color: var(--gold-soft);
+}
+
+.detail-sec {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.detail-date {
+  font-size: 0.8rem;
+  color: var(--teal);
+  text-align: right;
+}
+
+/* ==================== 6. 設定視窗 ==================== */
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.96rem;
+}
+
+.setting-row.col {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.setting-vol-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.92rem;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--gold);
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--teal);
+}
+
+.setting-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ==================== 手機響應式調整 ==================== */
+@media (max-width: 640px) {
+  .title-card {
+    padding: 26px 18px;
+  }
+
+  .hud-top-left {
+    top: 10px;
+    left: 10px;
+    padding: 10px 12px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .hud-top-right {
+    top: auto;
+    bottom: 84px;
+    right: 10px;
+    left: 10px;
+    justify-content: center;
+  }
+
+  .progress-track {
+    right: 8px;
+    gap: 6px;
+  }
+
+  .progress-node {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+
+  .map-hint {
+    display: none;
+  }
+
+  .modal-card {
+    padding: 18px 16px;
+  }
+}
