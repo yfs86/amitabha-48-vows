@@ -84,14 +84,23 @@
 
   // 8 種依願義設計的發願禪意互動
   var RITUAL_META = {
-    breath: { key: "breath", name: "息念光環", shortHint: "長按吸氣、放手呼氣，以呼吸定心" },
-    beads: { key: "beads", name: "十念撥珠", shortHint: "輕觸撥動發光念珠，聲聲相續" },
-    wipe: { key: "wipe", name: "淨心拂塵", shortHint: "滑動拂去塵霧，顯露本心清淨" },
-    constellation: { key: "constellation", name: "願光連線", shortHint: "依序點亮星點，織就光明願網" },
-    chime: { key: "chime", name: "法音和鳴", shortHint: "隨光音引導輕敲蓮鈴，五音和鳴" },
-    petals: { key: "petals", name: "寶華散供", shortHint: "接引飄落七寶蓮瓣，入蓮台供養" },
-    wheel: { key: "wheel", name: "轉輪調心", shortHint: "撥轉或長按緩轉法輪，願心不退" },
-    inscribe: { key: "inscribe", name: "經句印心", shortHint: "依序點選金字法句，印入心田" }
+    breath: { key: "breath", name: "息念光環", shortHint: "長按吸氣、放手呼氣，以呼吸定心。" },
+    beads: { key: "beads", name: "十念撥珠", shortHint: "輕觸發光念珠或按空白鍵，聲聲相續起念。" },
+    wipe: { key: "wipe", name: "淨心拂塵", shortHint: "在雲霧上滑動拂拭，顯露清淨本心與願光。" },
+    constellation: { key: "constellation", name: "願光連線", shortHint: "依序點亮閃耀星點，織就光明願網。" },
+    chime: { key: "chime", name: "法音和鳴", shortHint: "隨心輕敲五盞熄滅的蓮鈴，點亮清音和鳴。" },
+    petals: { key: "petals", name: "寶華散供", shortHint: "輕點或滑過飄落的七寶蓮瓣，收攝入蓮台供養。" },
+    wheel: { key: "wheel", name: "轉輪調心", shortHint: "拖曳轉動或長按緩轉金法輪，願心不退轉。" },
+    inscribe: { key: "inscribe", name: "經句印心", shortHint: "依序點選發光字燈，將本願核心法句印入心田。" }
+  };
+
+  // 為「經句印心」各願精選完整流暢的四字詞組（避免斷詞）
+  var INSCRIBE_PHRASES = {
+    22: ["一生補處", "披弘誓鎧", "積累德本", "度脫一切"],
+    25: ["國中菩薩", "演說妙法", "一切佛智", "言辭契理"],
+    29: ["受讀經法", "諷誦持說", "辯才無礙", "智慧通達"],
+    36: ["聞我名號", "常修梵行", "守持清淨", "至成佛道"],
+    48: ["聞我名號", "得三法忍", "永不退轉", "願海圓滿"]
   };
 
   // 第 1 ～ 48 願對應的發願互動（相鄰願絕不重複）
@@ -264,6 +273,7 @@
       ritualType: ritualKey,
       ritualName: ritualMeta.name,
       ritualHint: ritualMeta.shortHint,
+      inscribeSegments: INSCRIBE_PHRASES[vow.id] || null,
       askMode: askMode,
       askModeLabel: askMeta.label,
       sutraFill: sutraFill,

@@ -68,10 +68,10 @@
 
   /* ==================== 1. 息念光環 (breath) ==================== */
   function mountBreath(container, vow, onComplete) {
-    var TOTAL_CYCLES = 2;
-    var INHALE_SEC = 3.0;
-    var HOLD_SEC = 1.2;
-    var EXHALE_SEC = 3.0;
+    var TOTAL_CYCLES = 3;
+    var INHALE_SEC = 3.5;
+    var HOLD_SEC = 1.5;
+    var EXHALE_SEC = 3.5;
     var accent = vow.color || "#62d2c4";
 
     var state = {
@@ -91,7 +91,7 @@
         "</svg>" +
         "<div class='breath-center'>" +
           "<div id='ritual-breath-main' class='breath-center-main'>長按起息</div>" +
-          "<div id='ritual-breath-sub' class='breath-center-sub'>完成 2 輪專注呼吸</div>" +
+          "<div id='ritual-breath-sub' class='breath-center-sub'>完成 3 輪專注呼吸</div>" +
         "</div>" +
       "</div>" +
       "<div id='ritual-breath-dots' class='cycles-dots'></div>" +
@@ -107,7 +107,7 @@
     var svgEl = container.querySelector("#ritual-breath-svg");
     var statusEl = container.querySelector("#ritual-breath-status");
 
-    var totalPetals = 16;
+    var totalPetals = 24;
     for (var i = 0; i < totalPetals; i++) {
       var angle = (i * 360) / totalPetals;
       var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -156,7 +156,7 @@
       } else if (state.phase === "done") {
         progress = 1;
         mainText = "願力圓滿";
-        subText = "兩輪淨念完成";
+        subText = "三輪淨念完成";
         ringColor = "#f0c869";
       }
 
@@ -649,18 +649,15 @@
   function mountChime(container, vow, onComplete) {
     var BELL_LABELS = ["宮", "商", "角", "徵", "羽"];
     var accent = vow.color || "#6ee7b7";
-    var melody = [];
-    for (var m = 0; m < 6; m++) {
-      melody.push((vow.id + m * 2 + (m % 2)) % 5);
-    }
-    var step = 0;
+    var litFlags = [false, false, false, false, false];
+    var litCount = 0;
 
     container.innerHTML =
       "<div class='chime-stage'>" +
         "<div id='ritual-chime-arc' class='chime-arc'></div>" +
         "<div id='ritual-chime-dots' class='chime-progress'></div>" +
       "</div>" +
-      "<p id='ritual-chime-status' class='breath-status'>請輕敲閃耀的蓮鈴（1 / " + melody.length + "），聆聽寶樹法音。</p>";
+      "<p id='ritual-chime-status' class='breath-status'>五盞蓮鈴尚未點亮，請隨心輕敲每一盞蓮鈴（0 / 5），奏響五音和鳴。</p>";
 
     var arcEl = container.querySelector("#ritual-chime-arc");
     var dotsEl = container.querySelector("#ritual-chime-dots");
@@ -676,47 +673,46 @@
       arcEl.appendChild(btn);
       bellBtns.push(btn);
 
-      (function (bellIdx) {
-        addListener(btn, "pointerdown", function (e) {
+      (function (bellIdx, bellBtn) {
+        addListener(bellBtn, "pointerdown", function (e) {
           e.preventDefault();
-          if (step >= melody.length) return;
           if (window.VowsGame.Audio) {
-            window.VowsGame.Audio.playScaleNote(bellIdx, 1.15);
+            window.VowsGame.Audio.playScaleNote(bellIdx, 1.3);
           }
-          btn.classList.add("rung");
-          safeTimeout(function () { btn.classList.remove("rung"); }, 320);
+          bellBtn.classList.add("rung");
+          safeTimeout(function () { bellBtn.classList.remove("rung"); }, 320);
 
-          if (bellIdx === melody[step]) {
-            step++;
-            updateChimeUI();
-            if (step >= melody.length) {
+          if (!litFlags[bellIdx]) {
+            litFlags[bellIdx] = true;
+            litCount++;
+            bellBtn.classList.add("lit");
+            bellBtn.style.borderColor = accent;
+            bellBtn.style.boxShadow = "0 0 22px " + accent;
+            updateChimeDots();
+
+            if (litCount >= 5) {
               finishRitual(statusEl, onComplete);
             } else {
-              statusEl.textContent = "清音和鳴！請續敲下一個發光蓮鈴（" + step + " / " + melody.length + "）。";
+              statusEl.textContent = "已點亮「" + BELL_LABELS[bellIdx] + "」音蓮鈴（" + litCount + " / 5），請繼續輕敲其餘熄滅的蓮鈴。";
             }
-          } else {
-            statusEl.textContent = "法音清越，請依光影輕敲標記之鈴（第 " + (step + 1) + " 音）。";
+          } else if (litCount < 5) {
+            statusEl.textContent = "「" + BELL_LABELS[bellIdx] + "」音清越！可再輕敲其他尚未點亮的蓮鈴（" + litCount + " / 5）。";
           }
         });
-      })(b);
+      })(b, btn);
     }
 
-    function updateChimeUI() {
-      bellBtns.forEach(function (btn, idx) {
-        var isCue = step < melody.length && idx === melody[step];
-        btn.classList.toggle("cue", isCue);
-        btn.style.borderColor = isCue ? accent : "";
-      });
+    function updateChimeDots() {
       dotsEl.innerHTML = "";
-      for (var d = 0; d < melody.length; d++) {
+      for (var d = 0; d < 5; d++) {
         var dot = document.createElement("span");
-        dot.className = "chime-step-dot" + (d < step ? " lit" : "");
-        if (d < step) dot.style.background = accent;
+        dot.className = "chime-step-dot" + (d < litCount ? " lit" : "");
+        if (d < litCount) dot.style.background = accent;
         dotsEl.appendChild(dot);
       }
     }
 
-    updateChimeUI();
+    updateChimeDots();
   }
 
   /* ==================== 6. 寶華散供 (petals) ==================== */
@@ -1035,13 +1031,15 @@
 
   /* ==================== 8. 經句印心 (inscribe) ==================== */
   function buildInscribeSegments(vow) {
+    if (Array.isArray(vow.inscribeSegments) && vow.inscribeSegments.length > 0) {
+      return vow.inscribeSegments.slice();
+    }
     var mantra = (vow.vowPrompt && vow.vowPrompt.mantra) ? vow.vowPrompt.mantra : "";
     var parts = mantra.split("·");
     var core = (parts[1] || vow.title || "一心不亂").trim().replace(/\s+/g, "");
     if (core.length < 6) {
       core = "南無阿彌陀佛" + core;
     }
-    // 將核心詞句穩健切分為 4 個字燈（每格 2~3 字）
     var segments = [];
     if (core.length === 8) {
       segments = [core.slice(0, 2), core.slice(2, 4), core.slice(4, 6), core.slice(6, 8)];
@@ -1100,8 +1098,8 @@
     shuffled.forEach(function (item) {
       var btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "inscribe-tile";
-      btn.textContent = item.text;
+      btn.className = "inscribe-tile lantern-lit";
+      btn.innerHTML = "<span class='lantern-halo' aria-hidden='true'>🏮</span><span class='lantern-text'>" + item.text + "</span>";
       btn.setAttribute("data-orig", String(item.origIdx));
       tilesEl.appendChild(btn);
       tileBtns.push(btn);

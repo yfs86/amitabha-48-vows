@@ -87,6 +87,21 @@
     return null;
   }
 
+  function getNextVowAfter(currentId) {
+    var vows = window.VowsGame.Data.ALL_48_VOWS;
+    for (var i = 0; i < vows.length; i++) {
+      if (vows[i].id > currentId && state.completedIds.indexOf(vows[i].id) === -1) {
+        return vows[i];
+      }
+    }
+    for (var j = 0; j < vows.length; j++) {
+      if (vows[j].id < currentId && state.completedIds.indexOf(vows[j].id) === -1) {
+        return vows[j];
+      }
+    }
+    return null;
+  }
+
   function updateTitleUI() {
     var next = getNextTargetVow();
     var btnStart = $("btn-start");
@@ -403,7 +418,7 @@
     setEncounterStage("still");
     $("still-ritual-badge").textContent = vow.ritualName || "息念光環";
     $("still-title").textContent = vow.vowPrompt.title;
-    $("still-guide").textContent = vow.vowPrompt.guide;
+    $("still-guide").textContent = vow.ritualType === "breath" ? vow.vowPrompt.guide : (vow.ritualHint || vow.vowPrompt.guide);
     $("still-mantra").textContent = vow.vowPrompt.mantra;
 
     if (window.VowsGame.Rituals && window.VowsGame.Rituals.mount) {
@@ -432,7 +447,7 @@
     $("realize-reflection").textContent = activeVow.reflection;
     $("realize-pureland-reward").textContent = "✨ 極樂莊嚴變化：" + activeVow.purelandReward;
 
-    var next = getNextTargetVow();
+    var next = getNextVowAfter(activeVow.id);
     var btnNext = $("btn-realize-next");
     if (next) {
       btnNext.textContent = "繼續前往 " + next.vowLabel + " ›";
@@ -647,10 +662,11 @@
     // 莊嚴階段按鈕
     $("btn-realize-map").addEventListener("click", closeEncounter);
     $("btn-realize-next").addEventListener("click", function () {
-      var next = getNextTargetVow();
+      var next = activeVow ? getNextVowAfter(activeVow.id) : getNextTargetVow();
       closeEncounter();
       if (next) {
         window.VowsGame.Map.setCompassTarget(next.id);
+        updateMapHUD();
       } else {
         openStarMap();
       }

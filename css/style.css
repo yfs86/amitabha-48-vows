@@ -392,7 +392,11 @@ button:active {
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65);
 }
 
-.encounter-card { max-width: 680px; }
+.encounter-card {
+  max-width: 680px;
+  border-top: 3px solid var(--vow-accent, var(--gold));
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 36px color-mix(in srgb, var(--vow-accent, var(--gold)) 18%, transparent);
+}
 .wide-card { max-width: 920px; }
 .small-card { max-width: 440px; }
 
@@ -1032,4 +1036,489 @@ input[type="checkbox"] {
   .modal-card {
     padding: 18px 16px;
   }
+
+  .beads-svg {
+    width: 100%;
+    height: auto;
+  }
+
+  .chime-bell {
+    padding: 10px 11px;
+    min-width: 52px;
+  }
+}
+
+/* ==================== 7. 多元思惟與八種發願儀式 ==================== */
+.ask-mode-badge,
+.ritual-badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--vow-accent, var(--teal));
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid color-mix(in srgb, var(--vow-accent, var(--teal)) 45%, transparent);
+  padding: 3px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.contemplate-area {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(240, 200, 105, 0.22);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.contemplate-note {
+  font-size: 0.94rem;
+  line-height: 1.75;
+  color: #cbd5e1;
+  margin-top: 8px;
+}
+
+.sutra-fill-quote {
+  display: block;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(240, 200, 105, 0.07);
+  border-left: 3px solid var(--vow-accent, var(--gold));
+  font-size: 0.98rem;
+  color: #fef3c7;
+  line-height: 1.8;
+}
+
+.sutra-fill-blank {
+  display: inline-block;
+  padding: 0 8px;
+  margin: 0 2px;
+  border-bottom: 2px dashed var(--vow-accent, var(--teal));
+  color: var(--vow-accent, var(--teal));
+  font-weight: 700;
+}
+
+.sutra-fill-blank.filled {
+  border-bottom-style: solid;
+  color: #fde68a;
+}
+
+.ritual-stage {
+  margin-top: 6px;
+}
+
+/* 念珠 (beads) */
+.beads-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.beads-svg {
+  max-width: 100%;
+  user-select: none;
+  touch-action: none;
+}
+
+.bead-node {
+  cursor: pointer;
+}
+
+.bead-halo {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.bead-node.active .bead-halo {
+  opacity: 0.34;
+  animation: pulseBead 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseBead {
+  0%, 100% { transform: scale(1); opacity: 0.26; }
+  50% { transform: scale(1.22); opacity: 0.52; }
+}
+
+.bead-body {
+  fill: rgba(148, 163, 184, 0.35);
+  stroke: rgba(240, 200, 105, 0.6);
+  stroke-width: 1.8;
+  transition: fill 0.25s ease, transform 0.25s ease;
+}
+
+.bead-node.active .bead-body {
+  fill: rgba(240, 200, 105, 0.48);
+  stroke: #fde68a;
+  stroke-width: 2.5;
+}
+
+.bead-node.done .bead-body {
+  stroke: #ffffff;
+}
+
+.bead-num {
+  font-size: 10px;
+  fill: #f8fafc;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.beads-echo {
+  font-size: 1rem;
+  color: var(--gold-soft);
+  min-height: 26px;
+  letter-spacing: 0.1em;
+}
+
+/* 拂塵 (wipe) */
+.wipe-stage {
+  position: relative;
+  width: 280px;
+  height: 188px;
+  margin: 0 auto 12px;
+  border-radius: 16px;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+}
+
+.wipe-underlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(240, 200, 105, 0.2), rgba(13, 21, 44, 0.96));
+  border: 1px solid rgba(240, 200, 105, 0.45);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.wipe-lotus-glyph {
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+}
+
+.wipe-reveal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold-soft);
+  margin-bottom: 4px;
+}
+
+.wipe-reveal-sub {
+  font-size: 0.84rem;
+  color: #e2e8f0;
+}
+
+.wipe-canvas {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  transition: opacity 0.55s ease;
+  touch-action: none;
+}
+
+.wipe-progress-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 280px;
+  margin: 0 auto 12px;
+}
+
+.wipe-progress-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.22);
+  overflow: hidden;
+}
+
+.wipe-progress-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.15s ease;
+}
+
+.wipe-pct {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  min-width: 78px;
+  text-align: right;
+}
+
+/* 願光連線 (constellation) */
+.constellation-svg {
+  display: block;
+  margin: 0 auto 8px;
+  max-width: 100%;
+  background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.08), transparent 72%);
+  border-radius: 16px;
+  user-select: none;
+  touch-action: none;
+}
+
+.star-pt {
+  cursor: pointer;
+}
+
+.star-pt-ring {
+  fill: transparent;
+  stroke-width: 1.5;
+  opacity: 0;
+}
+
+.star-pt.active .star-pt-ring {
+  opacity: 0.9;
+  animation: pulseBead 1.4s ease-in-out infinite;
+}
+
+.star-pt-core {
+  fill: rgba(148, 163, 184, 0.35);
+  stroke: rgba(248, 250, 252, 0.65);
+  stroke-width: 1.5;
+  transition: fill 0.25s ease;
+}
+
+.star-pt.active .star-pt-core {
+  fill: rgba(240, 200, 105, 0.55);
+  stroke: #ffffff;
+}
+
+.star-pt-num {
+  font-size: 10px;
+  fill: #f8fafc;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.star-beam {
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  opacity: 0.88;
+}
+
+/* 法音和鳴 (chime) */
+.chime-stage {
+  padding: 12px 0 6px;
+}
+
+.chime-arc {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+  min-height: 98px;
+}
+
+.chime-bell {
+  transform: translateY(var(--bell-offset, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px;
+  min-width: 58px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  opacity: 0.46;
+  transition: opacity 0.28s ease, transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+
+.chime-bell .bell-icon {
+  font-size: 1.4rem;
+  filter: grayscale(1) brightness(0.65);
+  transition: filter 0.28s ease, transform 0.28s ease;
+}
+
+.chime-bell .bell-name {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  transition: color 0.28s ease;
+}
+
+.chime-bell:hover:not(.lit) {
+  opacity: 0.72;
+  border-color: rgba(240, 200, 105, 0.35);
+}
+
+.chime-bell.lit {
+  opacity: 1;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--vow-accent, var(--gold)) 28%, rgba(240, 200, 105, 0.16)), rgba(15, 23, 42, 0.88));
+  border-color: var(--vow-accent, var(--gold));
+}
+
+.chime-bell.lit .bell-icon {
+  filter: grayscale(0) brightness(1.15) drop-shadow(0 0 8px var(--vow-accent, #fde68a));
+  transform: scale(1.1);
+}
+
+.chime-bell.lit .bell-name {
+  color: #fef3c7;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--vow-accent, var(--gold)) 70%, transparent);
+}
+
+.chime-bell.rung {
+  transform: translateY(var(--bell-offset, 0px)) scale(1.09);
+}
+
+.chime-progress {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.chime-step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.25);
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.chime-step-dot.lit {
+  transform: scale(1.2);
+}
+
+/* 寶華散供 (petals) */
+.petals-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.petals-canvas {
+  max-width: 100%;
+  border-radius: 16px;
+  background: radial-gradient(circle at 50% 35%, rgba(240, 200, 105, 0.08), rgba(7, 11, 24, 0.72));
+  border: 1px solid rgba(240, 200, 105, 0.24);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.petals-counter {
+  font-size: 0.88rem;
+  color: var(--gold-soft);
+}
+
+/* 轉輪調心 (wheel) */
+.wheel-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.wheel-svg {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.wheel-svg:active {
+  cursor: grabbing;
+}
+
+.wheel-pct {
+  font-size: 0.88rem;
+  color: var(--gold-soft);
+}
+
+/* 經句印心 (inscribe) */
+.inscribe-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 6px 0 12px;
+}
+
+.inscribe-slots,
+.inscribe-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.inscribe-slot {
+  min-width: 66px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px dashed rgba(148, 163, 184, 0.45);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.inscribe-slot.filled {
+  border-style: solid;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--vow-accent, var(--gold)) 24%, transparent), rgba(15, 23, 42, 0.9));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--vow-accent, var(--gold)) 45%, transparent);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--vow-accent, var(--gold)) 75%, transparent);
+}
+
+.inscribe-tile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: radial-gradient(circle at 50% 35%, rgba(253, 230, 138, 0.18), rgba(15, 23, 42, 0.85));
+  border: 1px solid color-mix(in srgb, var(--vow-accent, var(--gold)) 58%, rgba(240, 200, 105, 0.45));
+  color: #fef3c7;
+  font-size: 0.98rem;
+  font-weight: 600;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--vow-accent, var(--gold)) 26%, transparent), inset 0 0 12px rgba(253, 230, 138, 0.12);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--vow-accent, var(--gold)) 55%, transparent);
+}
+
+.inscribe-tile.lantern-lit:not(:disabled) {
+  animation: lanternGlow 2.4s ease-in-out infinite;
+}
+
+@keyframes lanternGlow {
+  0%, 100% {
+    box-shadow: 0 0 14px color-mix(in srgb, var(--vow-accent, var(--gold)) 26%, transparent), inset 0 0 10px rgba(253, 230, 138, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 24px color-mix(in srgb, var(--vow-accent, var(--gold)) 48%, transparent), inset 0 0 16px rgba(253, 230, 138, 0.22);
+  }
+}
+
+.lantern-halo {
+  font-size: 0.95rem;
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.85));
+}
+
+.inscribe-tile:hover:not(:disabled) {
+  background: radial-gradient(circle at 50% 35%, rgba(253, 230, 138, 0.32), rgba(20, 30, 58, 0.92));
+  transform: translateY(-2px);
+}
+
+.inscribe-tile.used {
+  opacity: 0.22;
+  box-shadow: none;
+  text-shadow: none;
+  cursor: default;
+}
+
+.inscribe-tile.hint-glow {
+  border-color: #fde68a;
+  box-shadow: 0 0 26px color-mix(in srgb, var(--vow-accent, var(--gold)) 78%, transparent);
 }
