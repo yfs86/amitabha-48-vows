@@ -26,20 +26,6 @@
   var typingTimer = null;
   var questionAnswered = false;
 
-  // 發願階段呼吸狀態 (3 輪: 吸氣3.5s -> 持願1.5s -> 等待放手 -> 呼氣3.5s)
-  var TOTAL_BREATHS = 3;
-  var INHALE_SEC = 3.5;
-  var HOLD_SEC = 1.5;
-  var EXHALE_SEC = 3.5;
-  var breathState = {
-    cyclesDone: 0,
-    phase: "idle", // idle | inhaling | resting | wait_release | exhaling | done
-    isHolding: false,
-    phaseElapsed: 0,
-    lastTs: 0,
-    rafId: null
-  };
-
   function loadState() {
     var fallbackPos = getDefaultStartPos();
     try {
@@ -193,10 +179,20 @@
 
   function openEncounter(vow) {
     activeVow = vow;
-    if (window.VowsGame.Audio) window.VowsGame.Audio.playChime(523.25);
+    if (window.VowsGame.Audio) {
+      if (window.VowsGame.Audio.setSectionTheme) {
+        window.VowsGame.Audio.setSectionTheme(vow.sectionId);
+      }
+      window.VowsGame.Audio.playChime(523.25);
+    }
+
+    var card = document.querySelector("#modal-encounter .encounter-card");
+    if (card) {
+      card.style.setProperty("--vow-accent", vow.color || "#f0c869");
+    }
 
     $("enc-vow-badge").textContent = vow.vowLabel + " · " + vow.title;
-    $("enc-lotus-name").textContent = vow.lotusName + "（" + vow.section + " · " + vow.lampStyleName + "）";
+    $("enc-lotus-name").textContent = vow.lotusName + "（" + vow.section + " · " + vow.lampStyleName + " · " + vow.ritualName + "）";
 
     setEncounterStage("ask");
     initAskStage(vow);
@@ -205,7 +201,9 @@
 
   function closeEncounter() {
     stopTyping();
-    stopBreathLoop();
+    if (window.VowsGame.Rituals && window.VowsGame.Rituals.destroy) {
+      window.VowsGame.Rituals.destroy();
+    }
     hideModal("modal-encounter");
     activeVow = null;
     updateMapHUD();
@@ -218,11 +216,13 @@
     });
   }
 
-  // --- 階段一：思惟 ---
+  // --- 階段一：思惟（支援 4 種體驗模式：quiz / reflect / sutra-fill / contemplate） ---
   function initAskStage(vow) {
     lineIndex = 0;
     questionAnswered = false;
+    $("ask-mode-badge").textContent = vow.askModeLabel || "法義思辨";
     $("ask-question-area").classList.add("hidden");
+    $("ask-contemplate-area").classList.add("hidden");
     $("ask-feedback-box").classList.add("hidden");
     $("btn-to-still").classList.add("hidden");
     $("ask-dialogue-box").classList.remove("hidden");
@@ -234,6 +234,13 @@
       clearInterval(typingTimer);
       typingTimer = null;
     }
+  }
+
+  function getAskDoneHint(vow) {
+    if (vow.askMode === "contemplate") return "點擊靜觀本願經文 ›";
+    if (vow.askMode === "sutra-fill") return "點擊進入經文印證 ›";
+    if (vow.askMode === "reflect") return "點擊進入修心體會 ›";
+    return "點擊進入法義思惟 ›";
   }
 
   function startTypingLine(text) {
@@ -249,7 +256,7 @@
       textEl.textContent = text.slice(0, typedChars);
       if (typedChars >= text.length) {
         stopTyping();
-        hintEl.textContent = lineIndex < activeVow.introLines.length - 1 ? "點擊繼續下一段 ›" : "點擊進入法義思惟 ›";
+        hintEl.textContent = lineIndex < activeVow.introLines.length - 1 ? "點擊繼續下一段 ›" : getAskDoneHint(activeVow);
       }
     }, 24);
   }
@@ -261,7 +268,7 @@
       stopTyping();
       typedChars = currentLine.length;
       $("ask-dialogue-text").textContent = currentLine;
-      $("ask-dialogue-hint").textContent = lineIndex < activeVow.introLines.length - 1 ? "點擊繼續下一段 ›" : "點擊進入法義思惟 ›";
+      $("ask-dialogue-hint").textContent = lineIndex < activeVow.introLines.length - 1 ? "點擊繼續下一段 ›" : getAskDoneHint(activeVow);
       return;
     }
 
@@ -276,12 +283,91 @@
 
   function showAskQuestion() {
     $("ask-dialogue-box").classList.add("hidden");
+    var mode = activeVow.askMode || "quiz";
+
+    if (mode === "contemplate") {
+      var contArea = $("ask-contemplate-area");
+      contArea.classList.remove("hidden");
+      $("contemplate-sutra").textContent = "「" + activeVow.sutraText + "」";
+      $("contemplate-note").textContent = "靜心體會這句誓願的力量，隨後將以「" + activeVow.ritualName + "」發起清淨願心。";
+      if (window.VowsGame.Audio) window.VowsGame.Audio.playBowl(493.88, 2.0);
+      return;
+    }
+
     var qArea = $("ask-question-area");
     qArea.classList.remove("hidden");
-    $("ask-question-prompt").textContent = activeVow.question.prompt;
-
+    var promptEl = $("ask-question-prompt");
     var list = $("ask-choices-list");
     list.innerHTML = "";
+
+    if (mode === "sutra-fill" && activeVow.sutraFill) {
+      var sf = activeVow.sutraFill;
+      promptEl.innerHTML = "經文印證：請選出空缺處的本願經句——<br><span class='sutra-fill-quote'>「" + sf.maskedText.replace("＿＿＿＿", "<span id='sutra-fill-blank' class='sutra-fill-blank'>＿＿＿＿</span>") + "」</span>";
+
+      sf.choices.forEach(function (choice) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice-btn";
+        btn.textContent = choice.text;
+        btn.addEventListener("click", function () {
+          if (questionAnswered) return;
+          var fb = $("ask-feedback-box");
+          fb.classList.remove("hidden", "correct", "gentle");
+          var allBtns = list.querySelectorAll(".choice-btn");
+          allBtns.forEach(function (b) { b.classList.remove("selected-wrong", "selected-right"); });
+
+          if (choice.isCorrect) {
+            questionAnswered = true;
+            btn.classList.add("selected-right");
+            var blank = $("sutra-fill-blank");
+            if (blank) {
+              blank.textContent = choice.text;
+              blank.classList.add("filled");
+            }
+            fb.textContent = "法句契合！「" + activeVow.vernacular + "」";
+            fb.classList.add("correct");
+            $("btn-to-still").classList.remove("hidden");
+            if (window.VowsGame.Audio) window.VowsGame.Audio.playBowl(523.25, 2.2);
+          } else {
+            btn.classList.add("selected-wrong");
+            fb.textContent = "這句出自他願經文，再對照「" + activeVow.title + "」的願義試試看。";
+            fb.classList.add("gentle");
+            if (window.VowsGame.Audio) window.VowsGame.Audio.playChime(329.63);
+          }
+        });
+        list.appendChild(btn);
+      });
+      return;
+    }
+
+    if (mode === "reflect") {
+      promptEl.textContent = activeVow.question.prompt.replace(/^思惟：/, "修心體會：");
+      activeVow.question.choices.forEach(function (choice) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice-btn";
+        btn.textContent = choice.text;
+        btn.addEventListener("click", function () {
+          if (questionAnswered) return;
+          questionAnswered = true;
+          var allBtns = list.querySelectorAll(".choice-btn");
+          allBtns.forEach(function (b) { b.classList.remove("selected-wrong", "selected-right"); });
+          btn.classList.add("selected-right");
+
+          var fb = $("ask-feedback-box");
+          fb.classList.remove("hidden", "correct", "gentle");
+          fb.textContent = choice.feedback + " 帶著這份覺照，繼續前行發願。";
+          fb.classList.add("correct");
+          $("btn-to-still").classList.remove("hidden");
+          if (window.VowsGame.Audio) window.VowsGame.Audio.playBowl(493.88, 2.0);
+        });
+        list.appendChild(btn);
+      });
+      return;
+    }
+
+    // 預設 quiz 模式
+    promptEl.textContent = activeVow.question.prompt;
     activeVow.question.choices.forEach(function (choice) {
       var btn = document.createElement("button");
       btn.type = "button";
@@ -312,205 +398,17 @@
     });
   }
 
-  // --- 階段二：發願（呼吸光環三段音效：長按吸氣 / 放手呼氣 / 完整光圈） ---
+  // --- 階段二：發願（八種依願義設計的禪意互動） ---
   function initStillStage(vow) {
     setEncounterStage("still");
+    $("still-ritual-badge").textContent = vow.ritualName || "息念光環";
     $("still-title").textContent = vow.vowPrompt.title;
     $("still-guide").textContent = vow.vowPrompt.guide;
     $("still-mantra").textContent = vow.vowPrompt.mantra;
 
-    breathState.cyclesDone = 0;
-    breathState.phase = "idle";
-    breathState.isHolding = false;
-    breathState.phaseElapsed = 0;
-    breathState.lastTs = 0;
-
-    buildBreathPetals();
-    updateBreathUI();
-    startBreathLoop();
-  }
-
-  function buildBreathPetals() {
-    var group = $("breath-petals-group");
-    if (!group) return;
-    group.innerHTML = "";
-    var total = 24;
-    for (var i = 0; i < total; i++) {
-      var angle = (i * 360) / total;
-      var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      var rad = ((angle - 90) * Math.PI) / 180;
-      var r = 92;
-      dot.setAttribute("cx", (110 + Math.cos(rad) * r).toFixed(1));
-      dot.setAttribute("cy", (110 + Math.sin(rad) * r).toFixed(1));
-      dot.setAttribute("r", "3.5");
-      dot.setAttribute("class", "petal-dot");
-      dot.setAttribute("data-idx", String(i));
-      group.appendChild(dot);
+    if (window.VowsGame.Rituals && window.VowsGame.Rituals.mount) {
+      window.VowsGame.Rituals.mount($("still-ritual-stage"), vow, enterRealizeStage);
     }
-  }
-
-  function updateBreathUI() {
-    var dotsContainer = $("breath-cycles-dots");
-    if (dotsContainer) {
-      dotsContainer.innerHTML = "";
-      for (var i = 0; i < TOTAL_BREATHS; i++) {
-        var span = document.createElement("span");
-        span.className = "cycle-lotus" + (i < breathState.cyclesDone ? " lit" : "");
-        span.textContent = "🪷";
-        dotsContainer.appendChild(span);
-      }
-    }
-
-    var circle = $("breath-progress-circle");
-    var circumference = 2 * Math.PI * 76;
-    var progress = 0;
-    var mainLabel = "長按起息";
-    var subLabel = "完成 3 輪專注呼吸 (" + breathState.cyclesDone + " / " + TOTAL_BREATHS + ")";
-    var ringColor = activeVow && activeVow.color ? activeVow.color : "#62d2c4";
-
-    if (breathState.phase === "inhaling") {
-      progress = (breathState.phaseElapsed / INHALE_SEC) * 0.42;
-      mainLabel = "吸氣觀想";
-      subLabel = "持續按住不放 (" + Math.ceil(INHALE_SEC - breathState.phaseElapsed) + "s)";
-      ringColor = "#62d2c4";
-    } else if (breathState.phase === "resting") {
-      progress = 0.42 + (breathState.phaseElapsed / HOLD_SEC) * 0.18;
-      mainLabel = "定心持願";
-      subLabel = "即將圓滿吸氣 (" + Math.ceil(HOLD_SEC - breathState.phaseElapsed) + "s)";
-      ringColor = "#f0c869";
-    } else if (breathState.phase === "wait_release") {
-      progress = 0.60;
-      mainLabel = "請放開呼氣";
-      subLabel = "放開按鍵即可隨光呼氣迴向";
-      ringColor = "#fde68a";
-    } else if (breathState.phase === "exhaling") {
-      progress = 0.60 + (breathState.phaseElapsed / EXHALE_SEC) * 0.40;
-      mainLabel = "呼氣迴向";
-      subLabel = "正將願力化光迴向十方…";
-      ringColor = "#fde68a";
-    } else if (breathState.phase === "done") {
-      progress = 1;
-      mainLabel = "願力圓滿";
-      subLabel = "三輪淨念完成，正在點亮願海法卡…";
-      ringColor = "#f0c869";
-    }
-
-    if (circle) {
-      circle.style.strokeDasharray = circumference.toFixed(1);
-      circle.style.strokeDashoffset = (circumference * (1 - progress)).toFixed(1);
-      circle.style.stroke = ringColor;
-    }
-
-    $("breath-center-text").textContent = mainLabel;
-    $("breath-phase-sub").textContent = subLabel;
-
-    var litCount = breathState.cyclesDone * 8;
-    if (breathState.phase === "exhaling") {
-      litCount += Math.floor((breathState.phaseElapsed / EXHALE_SEC) * 8);
-    }
-    var dots = document.querySelectorAll("#breath-petals-group .petal-dot");
-    dots.forEach(function (d, idx) {
-      d.classList.toggle("lit", idx < litCount);
-    });
-  }
-
-  function startBreathHold() {
-    if (breathState.phase === "done" || breathState.phase === "exhaling" || breathState.phase === "wait_release") return;
-    if (!breathState.isHolding) {
-      breathState.isHolding = true;
-      if (breathState.phase === "idle") {
-        breathState.phase = "inhaling";
-        breathState.phaseElapsed = 0;
-        $("breath-status-msg").textContent = "開始吸氣觀想，請持續按住不放…";
-        if (window.VowsGame.Audio) window.VowsGame.Audio.playInhaleTone();
-        updateBreathUI();
-      }
-    }
-  }
-
-  function endBreathHold() {
-    if (!breathState.isHolding) return;
-    breathState.isHolding = false;
-
-    if (breathState.phase === "wait_release") {
-      // 放手觸發呼氣與放手音效
-      breathState.phase = "exhaling";
-      breathState.phaseElapsed = 0;
-      $("breath-status-msg").textContent = "已放開，隨光明緩緩呼氣迴向法界…";
-      if (window.VowsGame.Audio) window.VowsGame.Audio.playExhaleTone();
-      updateBreathUI();
-      return;
-    }
-
-    if (breathState.phase === "inhaling" || breathState.phase === "resting") {
-      breathState.phase = "idle";
-      breathState.phaseElapsed = 0;
-      $("breath-status-msg").textContent = "氣息尚未聚足，請重新長按起息（不扣進度）。";
-      if (window.VowsGame.Audio) window.VowsGame.Audio.playChime(329.63);
-      updateBreathUI();
-    }
-  }
-
-  function stopBreathLoop() {
-    if (breathState.rafId) {
-      cancelAnimationFrame(breathState.rafId);
-      breathState.rafId = null;
-    }
-  }
-
-  function breathTick(ts) {
-    if ($("enc-stage-still").classList.contains("hidden")) return;
-    if (!breathState.lastTs) breathState.lastTs = ts;
-    var dt = Math.min(0.05, (ts - breathState.lastTs) / 1000);
-    breathState.lastTs = ts;
-
-    if (breathState.phase === "inhaling" && breathState.isHolding) {
-      breathState.phaseElapsed += dt;
-      if (breathState.phaseElapsed >= INHALE_SEC) {
-        breathState.phase = "resting";
-        breathState.phaseElapsed = 0;
-        $("breath-status-msg").textContent = "心住淨念中，再輕輕停留片刻…";
-        if (window.VowsGame.Audio) window.VowsGame.Audio.playChime(523.25);
-      }
-    } else if (breathState.phase === "resting" && breathState.isHolding) {
-      breathState.phaseElapsed += dt;
-      if (breathState.phaseElapsed >= HOLD_SEC) {
-        breathState.phase = "wait_release";
-        breathState.phaseElapsed = 0;
-        $("breath-status-msg").textContent = "吸氣已滿，請放開按鍵（或空白鍵）呼氣迴向！";
-        if (window.VowsGame.Audio) window.VowsGame.Audio.playChime(659.25);
-      }
-    } else if (breathState.phase === "exhaling") {
-      breathState.phaseElapsed += dt;
-      if (breathState.phaseElapsed >= EXHALE_SEC) {
-        breathState.cyclesDone++;
-        // 完整完成一個光圈的音效
-        if (window.VowsGame.Audio) window.VowsGame.Audio.playCycleComplete(breathState.cyclesDone);
-
-        if (breathState.cyclesDone >= TOTAL_BREATHS) {
-          breathState.phase = "done";
-          $("breath-status-msg").textContent = "三輪呼吸光圈圓滿！正在點亮本願蓮燈…";
-          updateBreathUI();
-          stopBreathLoop();
-          setTimeout(enterRealizeStage, 750);
-          return;
-        } else {
-          breathState.phase = "idle";
-          breathState.phaseElapsed = 0;
-          $("breath-status-msg").textContent = "第 " + breathState.cyclesDone + " 個光圈圓滿！請再次長按起息。";
-        }
-      }
-    }
-
-    updateBreathUI();
-    breathState.rafId = requestAnimationFrame(breathTick);
-  }
-
-  function startBreathLoop() {
-    stopBreathLoop();
-    breathState.lastTs = 0;
-    $("breath-status-msg").textContent = "長按下方按鈕（或空白鍵）開始吸氣，聽見提示後放開完成呼氣。";
-    breathState.rafId = requestAnimationFrame(breathTick);
   }
 
   // --- 階段三：莊嚴（頒發願海法卡） ---
@@ -586,7 +484,7 @@
         node.innerHTML =
           "<div class='star-top-row'><span class='star-num'>" + v.id + "</span><i class='star-color-dot' style='background:" + v.color + "'></i></div>" +
           "<div class='star-name'>" + v.title + "</div>" +
-          "<div class='star-tag'>" + v.lampStyleName + " · " + (isDone ? "已點亮" : (isNext ? "建議下一願" : "可前往")) + "</div>";
+          "<div class='star-tag'>" + v.ritualName + " · " + (isDone ? "已點亮" : (isNext ? "建議下一願" : "可前往")) + "</div>";
 
         node.addEventListener("click", function () {
           hideModal("modal-starmap");
@@ -742,31 +640,8 @@
     $("btn-to-still").addEventListener("click", function () {
       if (activeVow) initStillStage(activeVow);
     });
-
-    // 發願長按控制（滑鼠 / 觸控 / 空白鍵）
-    var holdBtn = $("breath-hold-btn");
-    var ringSvg = $("breath-ring-svg");
-    [holdBtn, ringSvg].forEach(function (el) {
-      if (!el) return;
-      el.addEventListener("pointerdown", function (e) {
-        e.preventDefault();
-        startBreathHold();
-      });
-    });
-    window.addEventListener("pointerup", endBreathHold);
-    window.addEventListener("pointercancel", endBreathHold);
-
-    window.addEventListener("keydown", function (e) {
-      if (e.code === "Space" && !$("modal-encounter").classList.contains("hidden") && !$("enc-stage-still").classList.contains("hidden")) {
-        e.preventDefault();
-        if (!e.repeat) startBreathHold();
-      }
-    });
-    window.addEventListener("keyup", function (e) {
-      if (e.code === "Space" && !$("modal-encounter").classList.contains("hidden") && !$("enc-stage-still").classList.contains("hidden")) {
-        e.preventDefault();
-        endBreathHold();
-      }
+    $("btn-contemplate-next").addEventListener("click", function () {
+      if (activeVow) initStillStage(activeVow);
     });
 
     // 莊嚴階段按鈕

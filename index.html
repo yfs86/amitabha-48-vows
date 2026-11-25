@@ -108,6 +108,7 @@
 
       <!-- 階段一：思惟 -->
       <div id="enc-stage-ask" class="stage-panel">
+        <div id="ask-mode-badge" class="ask-mode-badge">法義思辨</div>
         <div id="ask-dialogue-box" class="dialogue-box" tabindex="0">
           <p id="ask-dialogue-text" class="dialogue-text"></p>
           <span id="ask-dialogue-hint" class="dialogue-hint">點擊繼續 ›</span>
@@ -121,29 +122,26 @@
             <button id="btn-to-still" type="button" class="btn-primary hidden">進入發願定心 ›</button>
           </div>
         </div>
+
+        <div id="ask-contemplate-area" class="contemplate-area hidden">
+          <div class="sutra-block">
+            <div class="block-label">本願原經直觀</div>
+            <p id="contemplate-sutra" class="sutra-text"></p>
+          </div>
+          <p id="contemplate-note" class="contemplate-note"></p>
+          <div class="stage-footer">
+            <button id="btn-contemplate-next" type="button" class="btn-primary">領受法義 · 進入發願 ›</button>
+          </div>
+        </div>
       </div>
 
-      <!-- 階段二：發願（呼吸光環定心） -->
+      <!-- 階段二：發願（八種依願義設計的禪意互動） -->
       <div id="enc-stage-still" class="stage-panel hidden">
+        <div id="still-ritual-badge" class="ritual-badge">息念光環</div>
         <h3 id="still-title" class="still-title">息苦發願</h3>
         <p id="still-guide" class="still-guide"></p>
         <div id="still-mantra" class="still-mantra"></div>
-
-        <div class="breath-wrapper">
-          <svg id="breath-ring-svg" class="breath-svg" viewBox="0 0 220 220" width="220" height="220">
-            <g id="breath-petals-group"></g>
-            <circle cx="110" cy="110" r="76" fill="none" stroke="rgba(148,163,184,0.22)" stroke-width="8" />
-            <circle id="breath-progress-circle" cx="110" cy="110" r="76" fill="none" stroke="#62d2c4" stroke-width="8" stroke-linecap="round" transform="rotate(-90 110 110)" />
-          </svg>
-          <div class="breath-center">
-            <div id="breath-center-text" class="breath-center-main">長按起息</div>
-            <div id="breath-phase-sub" class="breath-center-sub">完成 3 輪專注呼吸</div>
-          </div>
-        </div>
-
-        <div id="breath-cycles-dots" class="cycles-dots"></div>
-        <button id="breath-hold-btn" type="button" class="btn-hold">長按此處（或空白鍵）吸氣，提示後放開呼氣</button>
-        <p id="breath-status-msg" class="breath-status"></p>
+        <div id="still-ritual-stage" class="ritual-stage"></div>
       </div>
 
       <!-- 階段三：莊嚴（法卡頒發） -->
@@ -273,6 +271,7 @@
   <script src="js/vows-part3.js"></script>
   <script src="js/vows-data.js"></script>
   <script src="js/audio.js"></script>
+  <script src="js/rituals.js"></script>
   <script src="js/map.js"></script>
   <script src="js/app.js"></script>
 </body>

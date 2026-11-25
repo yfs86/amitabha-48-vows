@@ -35,6 +35,7 @@
   var onNearVowChangeFn = null;
   var onInteractVowFn = null;
   var currentNearVow = null;
+  var currentBiomeSectionId = "sec-1";
 
   function getWorldSize() {
     var data = window.VowsGame.Data;
@@ -200,15 +201,28 @@
     camera.x += (targetCamX - camera.x) * Math.min(1, dt * 7);
     camera.y += (targetCamY - camera.y) * Math.min(1, dt * 7);
 
-    // 偵測附近願燈
+    // 偵測附近願燈與所在分區聲景
     var nearest = null;
     var nearestDist = Infinity;
+    var closestAny = null;
+    var closestAnyDist = Infinity;
     for (var i = 0; i < vows.length; i++) {
       var v = vows[i];
       var d = Math.hypot(v.mapPos.x - player.x, v.mapPos.y - player.y);
+      if (d < closestAnyDist) {
+        closestAny = v;
+        closestAnyDist = d;
+      }
       if (d < INTERACT_RADIUS && d < nearestDist) {
         nearest = v;
         nearestDist = d;
+      }
+    }
+
+    if (closestAny && closestAny.sectionId && closestAny.sectionId !== currentBiomeSectionId) {
+      currentBiomeSectionId = closestAny.sectionId;
+      if (window.VowsGame.Audio && window.VowsGame.Audio.setSectionTheme) {
+        window.VowsGame.Audio.setSectionTheme(currentBiomeSectionId);
       }
     }
 
@@ -466,26 +480,41 @@
     var vows = window.VowsGame.Data.ALL_48_VOWS;
     var world = getWorldSize();
 
-    // 隨完成進度漸亮的極樂天幕
+    // 隨所在分區與完成進度漸變的極樂天幕
+    var themes = window.VowsGame.Data && window.VowsGame.Data.SECTION_THEMES;
+    var biomeTheme = themes && themes[currentBiomeSectionId];
     var bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-    if (doneCount === 0) {
+    if (biomeTheme) {
+      bgGrad.addColorStop(0, biomeTheme.bgTop);
+      bgGrad.addColorStop(1, biomeTheme.bgBottom);
+    } else if (doneCount === 0) {
       bgGrad.addColorStop(0, "#050814");
       bgGrad.addColorStop(1, "#0b1224");
-    } else if (doneCount < 18) {
-      bgGrad.addColorStop(0, "#070d1f");
-      bgGrad.addColorStop(1, "#101b38");
-    } else if (doneCount < 36) {
+    } else {
       bgGrad.addColorStop(0, "#091129");
       bgGrad.addColorStop(1, "#162447");
-    } else {
-      bgGrad.addColorStop(0, "#0c1534");
-      bgGrad.addColorStop(1, "#1c2a54");
     }
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, width, height);
 
     ctx.save();
     ctx.translate(-camera.x, -camera.y);
+
+    // 六大分區柔和光氛帶
+    if (themes) {
+      var secIds = ["sec-1", "sec-2", "sec-3", "sec-4", "sec-5", "sec-6"];
+      for (var z = 0; z < secIds.length; z++) {
+        var zTheme = themes[secIds[z]];
+        if (!zTheme) continue;
+        var zy = 2050 - z * 340;
+        if (zy + 360 < camera.y || zy - 360 > camera.y + height) continue;
+        var zoneGrad = ctx.createRadialGradient(world.w * 0.5, zy, 80, world.w * 0.5, zy, 1500);
+        zoneGrad.addColorStop(0, zTheme.zoneGlow);
+        zoneGrad.addColorStop(1, "rgba(5, 8, 20, 0)");
+        ctx.fillStyle = zoneGrad;
+        ctx.fillRect(0, zy - 320, world.w, 640);
+      }
+    }
 
     // 星空微光
     for (var s = 0; s < stars.length; s++) {
